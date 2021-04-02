@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "slog_inner.h": "c",
+        "logger.h": "c"
+    },
+    "cmake.configureOnOpen": true
+}
