@@ -13,18 +13,11 @@
 #include "logger.h"
 #include "slog_cfg.h"
 #include "slog_file.h"
+#include "slog_compiler.h"
 
 
 /* -------------------------------------------------------------------------- */
 /* -------------- PRIVATE MACROS -------------------------------------------- */
-
-#ifdef linux
-#define likely(x) __builtin_expect(!!(x), 1)
-#define unlikely(x) __builtin_expect(!!(x), 0)
-#else
-#define likely(x)   (x)
-#define unlikely(x) (x)
-#endif
 
 /* log file max size */
 #define SLOG_FILE_MAX_SIZE                   (10 * 1024 * 1024)  /* 10MB */

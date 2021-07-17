@@ -17,7 +17,7 @@
 #include "slog_event.h"
 #include "slog_async.h"
 #include "slog_inner.h"
-
+#include "slog_compiler.h"
 
 /* -------------------------------------------------------------------------- */
 /* -------------- PRIVATE VARIABLES ----------------------------------------- */
@@ -30,7 +30,7 @@ static int slog_is_init = 0;
 
 int log_init(void)
 {
-    if (slog_is_init) {
+    if (unlikely(slog_is_init)) {
         return 0;
     }
 
@@ -64,21 +64,23 @@ int log_init(void)
 
 void log_fini(void)
 {
-    if (!slog_is_init) {
+    if (unlikely(!slog_is_init)) {
         return;
     }
+
+    /* set slog_is_init to 0 */
+    __sync_sub_and_fetch(&slog_is_init, 1);
 
     slog_buffer_deinit();
 
     slog_port_deinit();
-
-    slog_is_init = 0;
 }
 
 void slog(uint8_t level, const char *tag, size_t tag_len, const char *file, size_t file_len, \
           const char *func, size_t func_len, long line, const char *format, ...)
 {
-    if (!slog_is_init) {
+    if (unlikely(!slog_is_init)) {
+        slog_error_inner("slog has not init");
         return;
     }
 

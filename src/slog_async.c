@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
 #include <pthread.h>
 
 #include "slog_cfg.h"
@@ -30,9 +31,21 @@ static void *async_output(void *arg)
     size_t slog_event_buf_len, slog_format_log_len;
     char slog_format_buf[SLOG_FORMAT_BUF_SIZE] = { 0 };
     char slog_event_buf[SLOG_EVENT_BUF_MAXLEN] = { 0 };
+
+    /* block sig */
+    sigset_t sig_block;
+    sigemptyset(&sig_block);
+    sigaddset(&sig_block, SIGSEGV);
+    sigaddset(&sig_block, SIGABRT);
+    sigaddset(&sig_block, SIGTERM);
+    sigaddset(&sig_block, SIGBUS);
+    ret = pthread_sigmask(SIG_BLOCK, &sig_block, NULL);
+    if (0 != ret) {
+        slog_error_inner("log output thread set sig mask error: %s", strerror(ret));
+    }
+
     int core_num = slog_get_cpu_core();
     long num = sysconf(_SC_NPROCESSORS_CONF);
-
     if ( (core_num < num) && (core_num >= 0) ) {
         cpu_set_t mask;
         CPU_ZERO(&mask);

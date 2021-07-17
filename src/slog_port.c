@@ -113,7 +113,7 @@ void slog_port_deinit(void)
  * @param log output of log
  * @param size log size
  */
-void slog_port_output(int level, const char *log, size_t size)
+void slog_port_output(uint8_t level, const char *log, size_t size)
 {
     if (slog_get_output_terminal_enabled()) {
         /* output to terminal with color */
